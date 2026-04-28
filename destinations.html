@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanderlust - saul project</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- DARK THEME VARIABLES --- */
+        :root {
+            --bg-color: #000000;
+            --card-bg: #121212;
+            --text-color: #f0f0f0;
+            --text-light: #aaaaaa;
+            --accent-color: #e67e22;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; }
+
+        /* --- HEADER --- */
+        header {
+            background: rgba(18, 18, 18, 0.95); padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222;
+            backdrop-filter: blur(10px); flex-wrap: wrap; gap: 10px;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; cursor: pointer; }
+        .logo i { color: var(--accent-color); margin-right: 8px; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        
+        /* Toggles */
+        .toggles { display: flex; gap: 10px; margin-right: 15px; background: #1a1a1a; padding: 5px; border-radius: 20px; border: 1px solid #333; }
+        .toggle-btn { background: transparent; border: none; color: #666; padding: 5px 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border-radius: 15px; transition: 0.3s; }
+        .toggle-btn.active { background: var(--accent-color); color: white; }
+
+        /* Nav Buttons */
+        .nav-btn, .itinerary-btn {
+            text-decoration: none; color: white; border: 1px solid #333; padding: 8px 20px;
+            border-radius: 30px; transition: 0.3s; font-size: 0.9rem; cursor: pointer; background: transparent;
+        }
+        .nav-btn:hover, .itinerary-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .itinerary-btn { background: rgba(230, 126, 34, 0.1); border-color: var(--accent-color); display: flex; align-items: center; gap: 8px; position: relative; }
+        .badge { background: var(--accent-color); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; }
+
+        /* --- MAIN LAYOUT --- */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
+        .view-section { display: block; animation: fadeIn 0.5s ease; }
+        .view-section.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- EXPLORE VIEW --- */
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h2 { font-size: 2.5rem; margin-bottom: 10px; }
+        .page-header span { color: var(--accent-color); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; border: 1px solid #222; transition: transform 0.3s ease, border-color 0.3s ease; }
+        .card:hover { transform: translateY(-10px); border-color: #444; }
+        .card-img { width: 100%; height: 200px; object-fit: cover; }
+        .card-body { padding: 1.5rem; }
+        .country { font-size: 0.8rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .card-title { font-size: 1.3rem; margin-bottom: 10px; }
+        .rating { color: #f1c40f; margin-bottom: 15px; font-size: 0.9rem; }
+        .desc { font-size: 0.9rem; color: var(--text-light); margin-bottom: 20px; line-height: 1.5; }
+        .btn-detail { display: block; width: 100%; padding: 10px; background: #2c3e50; color: white; text-align: center; border-radius: 8px; font-weight: 500; transition: 0.3s; cursor: pointer; border: none; }
+        .btn-detail:hover { background: var(--accent-color); }
+
+        /* --- ITINERARY VIEW --- */
+        .itinerary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+        .back-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .back-btn:hover { background: #444; }
+        
+        .itinerary-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .plan-card { display: flex; background: var(--card-bg); border-radius: var(--radius); border: 1px solid #222; padding: 1.5rem; gap: 20px; align-items: center; }
+        .plan-img { width: 120px; height: 120px; border-radius: 12px; object-fit: cover; }
+        .plan-info { flex: 1; }
+        .plan-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+        .plan-loc { color: var(--text-light); font-size: 0.9rem; margin-bottom: 10px; }
+        .plan-price { font-size: 1.2rem; color: var(--accent-color); font-weight: 700; }
+        .btn-remove { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid #e74c3c; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn-remove:hover { background: #e74c3c; color: white; }
+        .empty-itinerary { text-align: center; padding: 4rem 0; color: var(--text-light); }
+        .empty-itinerary i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.3; }
+
+        /* --- COST BREAKDOWN (NEW) --- */
+        .breakdown-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .breakdown-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .breakdown-icon { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-light); }
+        .breakdown-label { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .breakdown-value { font-size: 1.1rem; font-weight: 600; color: white; }
+
+        .total-summary { background: #1e1e1e; padding: 20px; border-radius: var(--radius); text-align: right; border: 1px solid #333; }
+        .total-label { color: var(--text-light); margin-bottom: 5px; }
+        .total-amount { font-size: 2rem; color: var(--accent-color); font-weight: 700; }
+
+        /* --- MODAL --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; opacity: 1; animation: fadeIn 0.3s; }
+        .modal-content { background: #1e1e1e; width: 90%; max-width: 600px; border-radius: 20px; border: 1px solid #333; position: relative; overflow: hidden; }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; }
+        .modal-body { padding: 2rem; }
+        .modal-action { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: 0.3s;}
+        .modal-action:hover { background: #d35400; }
+
+        /* --- TOAST --- */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #fff; color: #000; padding: 12px 25px; border-radius: 50px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; transition: 0.4s; opacity: 0; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @media (max-width: 768px) {
+            .plan-card { flex-direction: column; text-align: center; }
+            .plan-img { width: 100%; height: 200px; }
+            .total-summary { text-align: center; }
+            .breakdown-container { grid-template-columns: 1fr; }
+            .header-actions { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <i class="fas fa-plane-departure"></i> Wanderlust
+        </div>
+        
+        <!-- TOGGLE CONTROLS -->
+        <div class="toggles">
+            <button class="toggle-btn active" id="langEn" onclick="app.setLanguage('en')">EN</button>
+            <button class="toggle-btn" id="langId" onclick="app.setLanguage('id')">ID</button>
+        </div>
+
+        <div class="toggles">
+            <button class="toggle-btn active" id="currUsd" onclick="app.setCurrency('USD')">USD</button>
+            <button class="toggle-btn" id="currIdr" onclick="app.setCurrency('IDR')">IDR</button>
+        </div>
+
+        <div class="header-actions">
+            <button class="itinerary-btn" onclick="itineraryManager.switchView('itinerary')">
+                <i class="fas fa-suitcase-rolling"></i> <span id="navMyPlan">My Plan</span>
+                <span class="badge" id="headerCount">0</span>
+            </button>
+            <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Home</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- --- VIEW 1: EXPLORE --- -->
+        <div id="exploreView" class="view-section">
+            <div class="page-header">
+                <span id="headerSub">Global Travels</span>
+                <h2 id="headerTitle">Most Popular Destinations</h2>
+                <p id="headerDesc" style="color: #888;">Places you must visit at least once in your lifetime.</p>
+            </div>
+            <div class="grid" id="destinationGrid"></div>
+        </div>
+
+        <!-- --- VIEW 2: MY ITINERARY --- -->
+        <div id="itineraryView" class="view-section hidden">
+            <div class="itinerary-header">
+                <div>
+                    <h2 id="planTitle">My Itinerary</h2>
+                    <p id="planDesc" style="color: #888;">Review your selected destinations.</p>
+                </div>
+                <button class="back-btn" onclick="itineraryManager.switchView('explore')">
+                    <i class="fas fa-arrow-left"></i> <span id="btnBack">Back to Explore</span>
+                </button>
+            </div>
+
+            <div id="itineraryListContainer" class="itinerary-list"></div>
+
+            <!-- COST BREAKDOWN SECTION (NEW) -->
+            <div class="breakdown-container">
+                <div class="breakdown-card">
+                    <i class="fas fa-hotel breakdown-icon"></i>
+                    <div class="breakdown-label" id="lblHotel">Hotel</div>
+                    <div class="breakdown-value" id="valHotel">$0</div>
+                </div>
+                <div class="breakdown-card">
+                    <i class="fas fa-plane breakdown-icon"></i>
+                    <div class="breakdown-label" id="lblTransport">Transportation</div>
+                    <div class="breakdown-value" id="valTransport">$0</div>
+                </div>
+                <div class="breakdown-card">
+                    <i class="fas fa-utensils breakdown-icon"></i>
+                    <div class="breakdown-label" id="lblFood">Food (3x/Day)</div>
+                    <div class="breakdown-value" id="valFood">$0</div>
+                </div>
+            </div>
+
+            <div class="total-summary">
+                <div class="total-label" id="lblTotal">Estimated Total Cost</div>
+                <div class="total-amount" id="totalCost">$0</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModalBtn">&times;</button>
+            <img src="" alt="Destination" class="modal-img" id="modalImage">
+            <div class="modal-body">
+                <h3 id="modalTitle" style="font-size: 2rem; margin-bottom: 5px;">Title</h3>
+                <span id="modalLocation" style="color:var(--accent-color); font-weight:600;">Location</span>
+                <p id="modalDesc" style="color:#ccc; margin: 1rem 0; line-height:1.6;">Description...</p>
+                <button class="modal-action" id="addToPlanBtn">
+                    <i class="fas fa-plus"></i> <span id="btnAddText">Add to My Itinerary</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle" style="color: green;"></i>
+        <span id="toastMessage">Added!</span>
+    </div>
+
+    <script>
+        /* --- DICTIONARY (TRANSLATIONS) --- */
+        const dictionary = {
+            en: {
+                sub: "Global Travels", title: "Most Popular Destinations", desc: "Places you must visit at least once in your lifetime.",
+                myPlan: "My Plan", planTitle: "My Itinerary", planDesc: "Review your selected destinations.",
+                back: "Back to Explore", total: "Estimated Total Cost", viewDetails: "View Details", addToPlan: "Add to My Itinerary",
+                empty: "Your itinerary is empty", emptySub: "Go explore and add some destinations!", remove: "Remove",
+                added: "Added to plan!", removed: "Removed from plan!", alreadyAdded: "Already in your plan!",
+                // Breakdown Labels
+                lblHotel: "Hotel (50%)", lblTransport: "Transportation (20%)", lblFood: "Food (3x/Day) (30%)"
+            },
+            id: {
+                sub: "Perjalanan Global", title: "Destinasi Paling Populer", desc: "Tempat yang harus Anda kunjungi setidaknya sekali seumur hidup.",
+                myPlan: "Rencana Saya", planTitle: "Rencana Saya", planDesc: "Tinjau destinasi pilihan Anda.",
+                back: "Kembali ke Explore", total: "Estimasi Total Biaya", viewDetails: "Lihat Detail", addToPlan: "Tambah ke Rencana",
+                empty: "Rencana Anda kosong", emptySub: "Jelajahi dan tambahkan destinasi!", remove: "Hapus",
+                added: "Ditambahkan ke rencana!", removed: "Dihapus dari rencana!", alreadyAdded: "Sudah ada di rencana!",
+                // Breakdown Labels
+                lblHotel: "Hotel (50%)", lblTransport: "Transportasi (20%)", lblFood: "Makan (3x/Hari) (30%)"
+            }
+        };
+
+        /* --- CLASS: APP MANAGER --- */
+        class AppManager {
+            constructor() { this.lang = 'en'; this.currency = 'USD'; this.exchangeRate = 16000; }
+            setLanguage(newLang) {
+                this.lang = newLang;
+                document.getElementById('langEn').classList.toggle('active', newLang === 'en');
+                document.getElementById('langId').classList.toggle('active', newLang === 'id');
+                this.updateText();
+                renderDestinations();
+                itineraryManager.renderList();
+            }
+            setCurrency(newCurr) {
+                this.currency = newCurr;
+                document.getElementById('currUsd').classList.toggle('active', newCurr === 'USD');
+                document.getElementById('currIdr').classList.toggle('active', newCurr === 'IDR');
+                renderDestinations();
+                itineraryManager.renderList();
+            }
+            get(key) { return dictionary[this.lang][key]; }
+            updateText() {
+                const t = dictionary[this.lang];
+                document.getElementById('headerSub').innerText = t.sub; document.getElementById('headerTitle').innerText = t.title;
+                document.getElementById('headerDesc').innerText = t.desc; document.getElementById('navMyPlan').innerText = t.myPlan;
+                document.getElementById('planTitle').innerText = t.planTitle; document.getElementById('planDesc').innerText = t.planDesc;
+                document.getElementById('btnBack').innerText = t.back; document.getElementById('lblTotal').innerText = t.total;
+                document.getElementById('btnAddText').innerText = t.addToPlan;
+                // Update Breakdown Labels
+                document.getElementById('lblHotel').innerText = t.lblHotel;
+                document.getElementById('lblTransport').innerText = t.lblTransport;
+                document.getElementById('lblFood').innerText = t.lblFood;
+            }
+        }
+
+        /* --- CLASS: DESTINATION --- */
+        class Destination {
+            constructor(id, name, country, rating, image, description, priceUSD) {
+                this.id = id; this.name = name; this.country = country; this.rating = rating;
+                this.image = image; this.description = description; this.priceUSD = priceUSD;
+            }
+
+            formatPrice(currency, rate) {
+                let value = (currency === 'IDR') ? (this.priceUSD * rate) : this.priceUSD;
+                let locale = (currency === 'IDR') ? 'id-ID' : 'en-US';
+                return new Intl.NumberFormat(locale, { style: 'currency', currency: currency, maximumFractionDigits: 0 }).format(value);
+            }
+
+            // NEW METHOD: Calculate Breakdown
+            calculateBreakdown(currency, rate) {
+                let totalUSD = this.priceUSD;
+                let total = (currency === 'IDR') ? (totalUSD * rate) : totalUSD;
+
+                // Estimations: Hotel 50%, Transport 20%, Food 30%
+                return {
+                    hotel: total * 0.5,
+                    transport: total * 0.2,
+                    food: total * 0.3,
+                    total: total
+                };
+            }
+
+            renderCard(index, app) {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${this.image}" alt="${this.name}" class="card-img">
+                    <div class="card-body">
+                        <div class="country">${this.country}</div>
+                        <h3 class="card-title">${this.name}</h3>
+                        <div class="rating"><i class="fas fa-star"></i> ${this.rating} / 5.0</div>
+                        <p class="desc">${this.description.substring(0, 80)}...</p>
+                        <button class="btn-detail" onclick="modalManager.open(${index})">${app.get('viewDetails')}</button>
+                    </div>
+                `;
+                return card;
+            }
+        }
+
+        /* --- CLASS: MODAL MANAGER --- */
+        class ModalManager {
+            constructor() {
+                this.overlay = document.getElementById('detailModal'); this.closeBtn = document.getElementById('closeModalBtn');
+                this.addBtn = document.getElementById('addToPlanBtn'); this.currentIndex = null;
+                this.imgEl = document.getElementById('modalImage'); this.titleEl = document.getElementById('modalTitle');
+                this.locEl = document.getElementById('modalLocation'); this.descEl = document.getElementById('modalDesc');
+                this.closeBtn.addEventListener('click', () => this.close());
+                this.addBtn.addEventListener('click', () => { itineraryManager.add(popularDestinations[this.currentIndex]); this.close(); });
+                this.overlay.addEventListener('click', (e) => { if (e.target === this.overlay) this.close(); });
+            }
+            open(index) {
+                this.currentIndex = index; const data = popularDestinations[index];
+                this.imgEl.src = data.image; this.titleEl.innerText = data.name;
+                this.locEl.innerText = data.country; this.descEl.innerText = data.description;
+                this.overlay.classList.add('active');
+            }
+            close() { this.overlay.classList.remove('active'); }
+        }
+
+        /* --- CLASS: ITINERARY MANAGER --- */
+        class ItineraryManager {
+            constructor() {
+                this.items = []; this.gridView = document.getElementById('exploreView');
+                this.listView = document.getElementById('itineraryView');
+                this.listContainer = document.getElementById('itineraryListContainer');
+                this.countEl = document.getElementById('headerCount');
+            }
+
+            add(destination) {
+                if(!this.items.some(item => item.id === destination.id)) {
+                    this.items.push(destination);
+                    this.showToast(app.get('added'));
+                    this.updateHeaderCount();
+                } else { this.showToast(app.get('alreadyAdded'), true); }
+            }
+            remove(index) {
+                const removed = this.items[index]; this.items.splice(index, 1);
+                this.renderList(); this.updateHeaderCount(); this.showToast(`${app.get('removed')} ${removed.name}`);
+            }
+            updateHeaderCount() { this.countEl.innerText = this.items.length; }
+            switchView(viewName) {
+                if (viewName === 'itinerary') {
+                    this.gridView.classList.add('hidden'); this.listView.classList.remove('hidden');
+                    this.renderList();
+                } else {
+                    this.listView.classList.add('hidden'); this.gridView.classList.remove('hidden');
+                }
+            }
+
+            renderList() {
+                this.listContainer.innerHTML = '';
+                let totals = { hotel: 0, transport: 0, food: 0, totalUSD: 0 };
+                const locale = (app.currency === 'IDR') ? 'id-ID' : 'en-US';
+
+                if (this.items.length === 0) {
+                    this.listContainer.innerHTML = `
+                        <div class="empty-itinerary"><i class="fas fa-map-marked-alt"></i>
+                        <h3>${app.get('empty')}</h3><p>${app.get('emptySub')}</p></div>`;
+                } else {
+                    this.items.forEach((item, index) => {
+                        totals.totalUSD += item.priceUSD;
+                        const div = document.createElement('div');
+                        div.className = 'plan-card';
+                        div.innerHTML = `
+                            <img src="${item.image}" class="plan-img">
+                            <div class="plan-info">
+                                <div class="plan-title">${item.name}</div>
+                                <div class="plan-loc"><i class="fas fa-map-marker-alt"></i> ${item.country}</div>
+                                <div class="plan-price">${item.formatPrice(app.currency, app.exchangeRate)}</div>
+                            </div>
+                            <button class="btn-remove" onclick="itineraryManager.remove(${index})">
+                                <i class="fas fa-trash"></i> ${app.get('remove')}
+                            </button>
+                        `;
+                        this.listContainer.appendChild(div);
+                    });
+                }
+
+                // CALCULATE BREAKDOWN TOTALS
+                let totalCostValue = (app.currency === 'IDR') ? (totals.totalUSD * app.exchangeRate) : totals.totalUSD;
+                let hotelVal = totalCostValue * 0.5;
+                let transportVal = totalCostValue * 0.2;
+                let foodVal = totalCostValue * 0.3;
+
+                // UPDATE BREAKDOWN UI
+                const fmt = (val) => new Intl.NumberFormat(locale, { style: 'currency', currency: app.currency, maximumFractionDigits: 0 }).format(val);
+
+                document.getElementById('valHotel').innerText = fmt(hotelVal);
+                document.getElementById('valTransport').innerText = fmt(transportVal);
+                document.getElementById('valFood').innerText = fmt(foodVal);
+                document.getElementById('totalCost').innerText = fmt(totalCostValue);
+            }
+
+            showToast(msg, isError = false) {
+                const toast = document.getElementById('toast');
+                const icon = toast.querySelector('i'); const span = toast.querySelector('span');
+                icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+                icon.style.color = isError ? '#e74c3c' : 'green'; span.innerText = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        }
+
+        /* --- DATA DUMMY --- */
+        const popularDestinations = [
+            new Destination(1, "Bali", "Indonesia", 4.9, "https://picsum.photos/seed/bali/400/300", "The Island of the Gods with stunning beaches, beautiful terraced rice fields, and rich culture.", 1500),
+            new Destination(2, "Paris", "France", 4.8, "https://picsum.photos/seed/paris/400/300", "The City of Love, famous for the Eiffel Tower, world-class art museums, and exquisite cuisine.", 2500),
+            new Destination(3, "New York City", "USA", 4.7, "https://picsum.photos/seed/nyc/400/300", "The city that never sleeps, featuring Times Square, Central Park, and the Statue of Liberty.", 3000),
+            new Destination(4, "Tokyo", "Japan", 4.9, "https://picsum.photos/seed/tokyo/400/300", "A perfect blend of ultra-modern technology and strong traditional culture, offering unique experiences.", 1800),
+            new Destination(5, "Dubai", "UAE", 4.7, "https://picsum.photos/seed/dubai/400/300", "A futuristic city with the world's tallest buildings and vast deserts offering luxury adventures.", 2200),
+            new Destination(6, "Rome", "Italy", 4.8, "https://picsum.photos/seed/rome/400/300", "An open-air museum of Ancient Roman history with breathtaking architecture and food.", 2000),
+            new Destination(7, "London", "UK", 4.6, "https://picsum.photos/seed/london/400/300", "A historic capital featuring Big Ben, the London Eye, and a vibrant multicultural atmosphere.", 2400),
+            new Destination(8, "Santorini", "Greece", 4.9, "https://picsum.photos/seed/greece/400/300", "An iconic volcanic island famous for its white buildings, blue domes, and mesmerizing sunsets.", 1900)
+        ];
+
+        const app = new AppManager();
+        const modalManager = new ModalManager();
+        const itineraryManager = new ItineraryManager();
+        const gridContainer = document.getElementById('destinationGrid');
+
+        function renderDestinations() {
+            gridContainer.innerHTML = '';
+            popularDestinations.forEach((dest, index) => {
+                gridContainer.appendChild(dest.renderCard(index, app));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDestinations();
+        });
+
+    </script>
+</body>
+</html>
